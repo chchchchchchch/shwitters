@@ -1,0 +1,96 @@
+#!/bin/bash
+
+  CONFIG=$PWD/lib/sh/shourls.account
+
+# ------------------------------------------------------------------ #
+# SETUP YOURLS API CALL
+# ------------------------------------------------------------------ #
+  YOURLSAPI=`cat $CONFIG     | #
+             grep YOURLSAPI  | #
+             head -n 1       | #
+             cut -d ":" -f 2-` #
+  SIGNATURE="?signature="`cat $CONFIG    | #
+                          grep SIGNATURE | #
+                          head -n 1      | #
+                          cut -d ":" -f 2`
+  YOURLSAPI=$YOURLSAPI$SIGNATURE
+    INFO="&action=expand&shorturl="
+    MAKE="&action=shorturl&title="
+
+# ------------------------------------------------------------------ #
+# FUNCTIONS 
+# ------------------------------------------------------------------ #
+ 
+  function shourlsGetInfo() {
+
+    REMOTESHORTURL=$1
+    REQUEST=${YOURLSAPI}${INFO}${REMOTESHORTURL}
+    DETAILS=`curl -s $REQUEST`
+
+    STATUS=`echo  $DETAILS           | #
+            sed  's/</\n&/g'         | #
+            sed  's/Code>/\nTHIS:/g' | #
+            grep "^THIS" | head -n 1 | #
+            cut -d ":" -f 2`
+    REMOTETITLE=`echo  $DETAILS            | #
+                 sed  's/</\n&/g'          | #
+                 sed  's/title>/\nTHIS:/g' | #
+                 grep "^THIS" | head -n 1  | #
+                 cut -d ":" -f 2`
+    REMOTELONGURL=`echo  $DETAILS              | #
+                   sed  's/</\n&/g'            | #
+                   sed  's/longurl>/\nTHIS:/g' | #
+                   grep "^THIS" | head -n 1    | #
+                   cut -d ":" -f 2-            | # 
+                   sed 's,/$,,'`                 #
+
+  }
+
+# ------------------------------------------------------------------ #
+
+  function shourlsMakeEntry() {
+
+    LONGURL=`echo $1 | sed 's/#/%23/g'` # URL ENCODE #
+    SHORTURL="$2"
+    TITLE=`echo $*          | #
+           cut -d " " -f 3- | #
+           sed 's/"//g'     | #
+           perl -MURI::Escape -ne 'chomp;print uri_escape($_),"\n"'`
+
+    shourlsGetInfo $SHORTURL
+
+   #echo "LONGURL: $LONGURL"
+   #echo "SHORTURL: $SHORTURL"
+   #echo "TITLE: $TITLE"
+   #echo "STATUS: $STATUS"
+
+
+
+
+   if [ "S=$STATUS" == "S=404" ]; then
+
+    echo "lfkn.de/$2 still available"
+    echo "Make a new entry. NOW!"
+    POST="&url=$LONGURL&keyword=$SHORTURL"
+    REQUEST="${YOURLSAPI}${MAKE}${TITLE}${POST}" 
+    curl -s "$REQUEST"
+   #echo "$REQUEST"
+
+   else
+
+     echo "lfkn.de/$2 already used"
+     echo "Update entry. NOW!"
+     UPDATE="&action=update&shorturl=${SHORTURL}&title=${TITLE}&url="
+     REQUEST=${YOURLSAPI}${UPDATE}${LONGURL}
+     curl -s "$REQUEST"
+    #echo "$REQUEST"
+   fi
+
+
+
+
+
+  }
+
+# ------------------------------------------------------------------ #
+
