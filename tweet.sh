@@ -46,7 +46,7 @@
   CHARCNT=`cat $COMPOSE                       | # 
            sed "s, http://[^ $]*,$URLFOO,g"   | #
            sed "s, E/.*\.svg[ $]\?,$IMGFOO,g" | #
-           wc -c`; echo $CHARCNT
+           wc -c`; # echo $CHARCNT
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
         echo "Character count: $CHARCNT"
         exit 0;
@@ -99,7 +99,7 @@
                 tail -n 1`
    do
       MEDIAUPLOAD=${TMP}.png
-      inkscape --export-png=${MEDIAUPLOAD} $MEDIA
+      inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
   done
 
 # --------------------------------------------------------------------------- #
