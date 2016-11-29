@@ -26,10 +26,10 @@
      [ ! -f  "$MESSAGE" ]
    then echo "No input file provided!"
         MESSAGE=`find $SRCDIR -name "*.tweet" | shuf -n 1`
-        echo "Use $MESSAGE"
-  else
-        echo "Use $MESSAGE"
-  fi
+        if [ `echo $MESSAGE | wc -c` -gt 1 ]; then
+              echo "USE $MESSAGE"
+        else  echo "NOTHING TO DO."; exit 0; fi
+  else  echo "USE $MESSAGE"; fi
 
 # --------------------------------------------------------------------------- #
 # COMPOSE MESSAGE (WITH MEDIA FOR COUNTING)
