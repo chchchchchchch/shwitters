@@ -99,7 +99,8 @@
                 tail -n 1`
    do
       MEDIAUPLOAD=${TMP}.png
-      inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
+    # inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
+      inkscape --export-png=${MEDIAUPLOAD} _/$MEDIA > /dev/null 2>&1
   done
 
 # --------------------------------------------------------------------------- #
