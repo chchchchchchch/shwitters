@@ -16,23 +16,23 @@
      TMP=$TMPDIR/tmp
   LOG="/dev/null"
   URLFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 24 CHARS FOR AN URL
-  IMGFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 26 CHARS FOR AN IMAGE
+  IMGFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 26 CHARS FOR AN IMAGE ???
   COMPOSE=${TMP}.txt
 # --------------------------------------------------------------------------- #
 # CHECK PARAMETERS
 # --------------------------------------------------------------------------- #
   MESSAGE=`echo $* | sed 's/-t//g' | sed 's/ //g'`
-
   if [ `echo "$MESSAGE" | wc -c` -lt 1 ];
      [ ! -f  "$MESSAGE" ]
    then echo "No input file provided!"
-        MESSAGE=`ls $SRCDIR/*.tweet | shuf -n 1`
+        MESSAGE=`find $SRCDIR -name "*.tweet" | shuf -n 1`
         echo "Use $MESSAGE"
   else
         echo "Use $MESSAGE"
   fi
+
 # --------------------------------------------------------------------------- #
-# COMPOSE MESSAGE (WITH E/MEDIA FOR COUNTING)
+# COMPOSE MESSAGE (WITH MEDIA FOR COUNTING)
 # --------------------------------------------------------------------------- #
   cat $MESSAGE             | #
   grep -v "^%"             | #
@@ -50,15 +50,11 @@
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
         echo "Character count: $CHARCNT"
         exit 0;
-  fi
-
-# TODO: STOP IF TOO MANY CHARACTERS (142)
-
+  fi; if [ $CHARCNT -gt 141 ]; then echo "TOO MANY CHARS"; exit 0; fi
 # --------------------------------------------------------------------------- #
-# REMOVE E/MEDIA (UPLOAD HANDLED SEPARATELY)
+# REMOVE MEDIA (UPLOAD HANDLED SEPARATELY)
 # --------------------------------------------------------------------------- #
-  sed -i "s, E/.*\.svg[ $]\?,,g" $COMPOSE
-
+  sed -i "s, [0-9a-zA-Z\.]*/.*\.svg[ $]\?, ,g" $COMPOSE
 # --------------------------------------------------------------------------- #
 # SHORTEN URLS
 # --------------------------------------------------------------------------- #
@@ -90,28 +86,33 @@
          shourlsMakeEntry "$URL" "$SHOURL" "$SHOURLTITLE" >> $LOG
        # INSERT SHORT URL
          sed -i "s,$URL,lfkn.de\/$SHOURL,g" $COMPOSE
-  done
+   done
 # --------------------------------------------------------------------------- #
 # PROCESS MEDIA (KEEP ONLY LAST MEDIA ENTRY)
 # --------------------------------------------------------------------------- #
   for MEDIA in `cat $MESSAGE | #
-                grep "^E/.*\.svg$" | #
+                grep ".*/.*\.svg$" | #
                 tail -n 1`
    do
+      MESSAGEPATH=`echo $MESSAGE | rev | #
+                   cut -d "/" -f 2- | rev`
+      MEDIA=$MESSAGEPATH/$MEDIA
+      if [ -f $MEDIA ]; then
       MEDIAUPLOAD=${TMP}.png
-    # inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
-      inkscape --export-png=${MEDIAUPLOAD} _/$MEDIA > /dev/null 2>&1
+      inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
+      fi
   done
 
 # --------------------------------------------------------------------------- #
 # HAU RAUS DAT DINGEN
 # --------------------------------------------------------------------------- #
-  TIMESTAMP=`date +%Y%m%d%H%M`
+  TIMESTAMP=`date +%y%m%d%H%M`
   tweet `cat $COMPOSE` $MEDIAUPLOAD
+
 # --------------------------------------------------------------------------- #
 # DISABLE .tweet WHEN DONE
 # --------------------------------------------------------------------------- #
-  mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$TIMESTAMP
+# mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$TIMESTAMP
 
 # --------------------------------------------------------------------------- #
 # CLEAN UP
