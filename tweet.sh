@@ -43,10 +43,11 @@
 # --------------------------------------------------------------------------- #
 # CHECK MESSAGE
 # --------------------------------------------------------------------------- #
-  CHARCNT=`cat $COMPOSE                                  | # 
-           sed "s, http://[^ $]*,$URLFOO,g"               | #
-           sed "s, [0-9a-zA-Z\.]*/.*\.svg[ $]\?,$IMGFOO,g" | #
-           sed "s,[ \t]*%NL[ \t]*,XX,g" | #
+  CHARCNT=`cat $COMPOSE | # USELESS USE OF CAT
+           sed "s, http://[^ $]*,$URLFOO,g" | # URL COUNT
+           sed "s, [0-9a-zA-Z\.]*/.*\.svg[ $]\?,$IMGFOO,g" | # IMG COUNT
+           sed "s,[ \t]*%NL[ \t]*,XX,g"  | # NEWLINE COUNT
+           sed 's/./X/g' | # MAKE EVERY CHAR 1 (UNICODE CHAR MISCOUNT?)
            wc -c`; # echo $CHARCNT
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
         echo "Character count: $CHARCNT"
