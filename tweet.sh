@@ -45,7 +45,7 @@
 # --------------------------------------------------------------------------- #
   CHARCNT=`cat $COMPOSE                       | # 
            sed "s, http://[^ $]*,$URLFOO,g"   | #
-           sed "s, E/.*\.svg[ $]\?,$IMGFOO,g" | #
+           sed "s, [0-9a-zA-Z\.]*/.*\.svg[ $]\?,$IMGFOO,g" | #
            wc -c`; # echo $CHARCNT
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
         echo "Character count: $CHARCNT"
