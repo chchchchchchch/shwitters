@@ -16,7 +16,7 @@
      TMP=$TMPDIR/tmp
   LOG="/dev/null"
   URLFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 24 CHARS FOR AN URL
-  IMGFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 26 CHARS FOR AN IMAGE ???
+  IMGFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 24 CHARS FOR AN IMAGE
   COMPOSE=${TMP}.txt
 # --------------------------------------------------------------------------- #
 # CHECK PARAMETERS
@@ -112,7 +112,7 @@
 # --------------------------------------------------------------------------- #
 # DISABLE .tweet WHEN DONE
 # --------------------------------------------------------------------------- #
-# mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$TIMESTAMP
+  mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$TIMESTAMP
 
 # --------------------------------------------------------------------------- #
 # CLEAN UP
