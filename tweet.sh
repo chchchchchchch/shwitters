@@ -107,6 +107,18 @@
       if [ -f $MEDIA ]; then
       MEDIAUPLOAD=${TMP}.png
       inkscape --export-png=${MEDIAUPLOAD} $MEDIA > /dev/null 2>&1
+
+    # MAKE 1 PIXEL 99% OPAQUE (THIS REALLY SHOULD BE DONE DIFFERENT!)
+    # --------------------------------------------------------------- #
+    # MAKE PIXEL FULL TRANSPARENT
+      convert ${MEDIAUPLOAD} -alpha on -fill none \
+                           -draw 'color 0,0 point' ${TMP}.1.png
+    # MAKE FULL IMAGE 99% OPAQUE
+      convert ${MEDIAUPLOAD} -alpha set -channel A \
+                           -evaluate set 99% ${TMP}.2.png
+    # COMBINE 
+      composite -gravity center ${TMP}.1.png ${TMP}.2.png ${MEDIAUPLOAD}
+      rm ${TMP}.1.png ${TMP}.2.png 
       fi
   done
 
