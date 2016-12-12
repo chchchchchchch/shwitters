@@ -25,7 +25,12 @@
   if [ `echo "$MESSAGE" | wc -c` -lt 1 ];
      [ ! -f  "$MESSAGE" ]
    then echo "No input file provided!"
-        MESSAGE=`find $SRCDIR -name "*.tweet" | shuf -n 1`
+        for L in `find $SRCDIR -name "*.list"`; do 
+          for M in `cat $L | grep -v "^%"`; do
+              MESSAGE="$MESSAGE|"`find $SRCDIR -name "$M"`
+        done;done
+        MESSAGE=`echo $MESSAGE | sed 's/|/\n/g' | #
+                 sed '/^|*$/d' | shuf -n 1`
         if [ `echo $MESSAGE | wc -c` -gt 1 ]; then
               echo "USE $MESSAGE"
         else  echo "NOTHING TO DO."; exit 0; fi
