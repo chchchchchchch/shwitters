@@ -4,7 +4,7 @@
 # ---------------------------------------------------------- #
   SELF=`basename $0`
   HOUR=`date +%H`
-  if [ `echo $RANDOM | rev | cut -c 1` -ge 6 ] &&
+  if [ `echo $RANDOM | rev | cut -c 1` -ge 7 ] &&
      [ $HOUR -lt 24 ] && [ $HOUR -gt 5 ]; then
 
   if [ `ps a         | # LIST PROCESSES
@@ -23,7 +23,7 @@
                      cut -d "/" -f 2- | # REMOVE FIRST FIELD
                      rev`               # REVERT
         cd $PROJECTROOT
-        SLEEPTIME=`expr $((RANDOM%3000)) \/ $((RANDOM%2+2))`
+        SLEEPTIME=`expr $((RANDOM%2500)) \/ $((RANDOM%2+2))`
         echo "DELAY:  ${SLEEPTIME}s"
         sleep $SLEEPTIME
         echo "TIME:   "`date "+%d.%m.%Y %T"`
