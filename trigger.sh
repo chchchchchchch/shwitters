@@ -3,18 +3,21 @@
 # RUSSIAN ROULETTE: PULL THE TRIGGER, SHOT NOT EVERY TIME    #
 # ---------------------------------------------------------- #
   SELF=`basename $0`
+  HOUR=`date +%H`
+  if [ `echo $RANDOM | rev | cut -c 1` -ge 6 ] &&
+     [ $HOUR -lt 24 ] && [ $HOUR -gt 5 ]; then
 
   if [ `ps a         | # LIST PROCESSES
         grep $SELF   | # LOOK FOR YOURSELF
         grep -v grep | # IGNORE THIS SEARCH
         wc -l` -ge 3 ]; then
-        sleep 0
-      # echo "STATUS: $SELF running -> exiting"
-      # echo "TIME:   "`date "+%d.%m.%Y %T"`
-  else  HOUR=`date +%H`
-  if [ `echo $RANDOM | rev | cut -c 1` -ge 7 ] &&
-     [ $HOUR -lt 24 ] && [ $HOUR -gt 5 ]; then
-
+        ALREADY=`ps a         | #
+                 grep $SELF   | #
+                 grep -v grep`
+        echo -e "STATUS: running -> exiting \n$ALREADY"
+        echo    "TIME:   "`date "+%d.%m.%Y %T"`
+        exit 0;
+  fi
         PROJECTROOT=`readlink -f $0   | # ABSOLUTE PATH
                      rev              | # REVERT
                      cut -d "/" -f 2- | # REMOVE FIRST FIELD
@@ -28,7 +31,6 @@
         $TRIGGERTHIS
         cd - > /dev/null 2>&1
         echo
-  fi
   fi
 
 exit 0;
