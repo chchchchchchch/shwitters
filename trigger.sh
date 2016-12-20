@@ -23,7 +23,7 @@
                      cut -d "/" -f 2- | # REMOVE FIRST FIELD
                      rev`               # REVERT
         cd $PROJECTROOT
-        SLEEPTIME=`expr $((RANDOM%2500)) \/ $((RANDOM%2+2))`
+        SLEEPTIME=`expr $((RANDOM%8000)) \/ $((RANDOM%10+1))`
         echo "DELAY:  ${SLEEPTIME}s"
         sleep $SLEEPTIME
         echo "TIME:   "`date "+%d.%m.%Y %T"`
