@@ -106,7 +106,7 @@
                 grep ".*/.*\.svg$" | #
                 tail -n 1`
    do
-      MESSAGEPATH=`echo $MESSAGE | rev | #
+      MESSAGEPATH=`realpath $MESSAGE | rev | #
                    cut -d "/" -f 2- | rev`
       MEDIA=$MESSAGEPATH/$MEDIA
       if [ -f $MEDIA ]; then
