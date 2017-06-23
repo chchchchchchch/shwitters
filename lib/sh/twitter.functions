@@ -142,7 +142,7 @@
 
   if [ -f ${TMP}.favcollect ]; then rm ${TMP}.favcollect; fi
 
-  while [ $COUNTRESULTS -ge $N ];do
+  while [ $COUNTRESULTS -ge 10 ];do
 
   $TWURL \"/1.1/favorites/list.json?$OPTIONS\" > ${TMP}.timeline
 
@@ -198,6 +198,7 @@
   COUNTRESULTS=`sed 's/{"created_at/\nXXXXXXX/g' ${TMP}.timeline  | #
                 grep "^XXXXXXX" | wc -l`
   OPTIONS="count=$N&screen_name=$FROMNAME&max_id=$LASTID"
+
   done
  # ----------------------------------------------------------------------- #
  # REMOVE DUPLICATE (PARAGRAPHS) 
