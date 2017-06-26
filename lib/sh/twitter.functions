@@ -217,4 +217,49 @@
 
  }
 # --------------------------------------------------------------------------- #
+  function conformMedia() {
+
+   EDITSRC=$1;SAVETHIS=$2;
+ # ------------------------------------------------------------------------- #
+ # REMOVE 'XX_' LAYERS
+ # ------------------------------------------------------------------------- #
+   BFOO=NL`echo ${RANDOM} | cut -c 1`F0;SFOO=SP`echo ${RANDOM} | cut -c 1`FO
+
+   cp -p ${EDITSRC} ${EDITSRC}.original     # MAKE BACKUP
+
+   sed ":a;N;\$!ba;s/\n/$BFOO/g" $EDITSRC | # REMOVE ALL LINEBREAKS (BUT SAVE)
+   sed "s/ /$SFOO/g"                      | # REMOVE ALL SPACE (BUT SAVE)
+   sed 's/<g/\n&/g'                       | # MOVE GROUP TO NEW LINES
+   sed '/groupmode="layer"/s/<g/4Fgt7R/g' | # PLACEHOLDER FOR LAYERGROUP OPEN
+   sed ':a;N;$!ba;s/\n//g'                | # REMOVE ALL LINEBREAKS
+   sed 's/4Fgt7R/\n<g/g'                  | # RESTORE LAYERGROUP OPEN + NEWLINE
+   sed 's/<\/svg>/\n&/g'                  | # CLOSE TAG ON SEPARATE LINE
+   sed 's/display:none/display:inline/g'  | # MAKE VISIBLE EVEN WHEN HIDDEN
+   grep -v 'label="XX_'                   | # REMOVE EXCLUDED LAYERS
+   sed "s/$BFOO/\n/g"                     | # RESTORE LINEBREAKS
+   sed "s/$SFOO/ /g"                      | # RESTORE LINEBREAKS
+   tee > ${EDITSRC}.tmp
+
+   mv ${EDITSRC}.tmp ${EDITSRC}             # MOVE IN PLACE (TEMPORARILY)
+ # ------------------------------------------------------------------------- #
+
+      inkscape --export-png=${SAVETHIS} ${EDITSRC} > /dev/null 2>&1
+
+    # MAKE 1 PIXEL 99% OPAQUE (THIS REALLY SHOULD BE DONE DIFFERENT!)
+    # --------------------------------------------------------------- #
+    # MAKE PIXEL FULL TRANSPARENT
+      convert ${SAVETHIS} -alpha on -fill none \
+                          -draw 'color 0,0 point' ${TMP}.1.png
+    # MAKE FULL IMAGE 99% OPAQUE
+      convert ${SAVETHIS} -alpha set -channel A \
+                          -evaluate set 99% ${TMP}.2.png
+    # COMBINE 
+      composite -gravity center ${TMP}.1.png ${TMP}.2.png ${SAVETHIS}
+      rm ${TMP}.1.png ${TMP}.2.png
+
+ # ------------------------------------------------------------------------- #
+    mv ${EDITSRC}.original ${EDITSRC} # MOVE BACK IN PLACE
+ }
+
+# --------------------------------------------------------------------------- #
 
