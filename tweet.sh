@@ -83,8 +83,11 @@
       shourlsGetInfo "$SHOURL"                            >> $LOG
      #echo "$SHOURL $REMOTELONGURL ($STATUS)"
 
+      URL1=`urldecode $URL`
+      URL2=`urldecode $REMOTELONGURL`
+
     while [ "S=$STATUS" != "S=404" ] &&
-          [ "U=$URL" != "U=$REMOTELONGURL" ]; do
+          [ "U=$URL1" != "U=$URL2" ]; do
              C1=`expr $C1 + 1`
              C2=`expr $C2 + 1`
              SHOURL=`echo $URLHASH | cut -c $C1-$C2`
