@@ -30,6 +30,7 @@
      done
            echo "$TWUSERNAME" > $TWURLLOCK
            /usr/local/bin/twurl set default $TWUSERNAME
+           sleep 2
            EVALTHIS="/usr/local/bin/twurl $*"
            eval $EVALTHIS
            rm $TWURLLOCK
