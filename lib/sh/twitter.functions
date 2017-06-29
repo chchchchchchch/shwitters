@@ -4,25 +4,35 @@
             cut -d "/" -f 2- | #
             rev`
 
-   TWACCOUNT=`find $BASEDIR -name "twitter.account" | head -n 1`
+    TWACCOUNT=`find $BASEDIR -name "twitter.account" | head -n 1`
    TWUSERNAME=`cat $TWACCOUNT | grep "username" | cut -d ":" -f 2`
+    TWURLLOCK="/tmp/twurl.lock"
 
 # --------------------------------------------------------------------------- #
    function setdefaultuserandtweet() {
 
      while [ `ps aux | grep twurl | #
-              grep -v grep | wc -l` -gt 0 ]
+              grep -v grep | wc -l` -gt 0 ] ||
+           [ -f $TWURLLOCK ]
       do 
             COLLISION=`ps axo command | #
                        grep twurl | grep -v grep | #
                        sed ':a;N;$!ba;s/\n/, /g'`
             WHEN=`date "+%d.%m.%Y %H:%M:%S"`
+            if [ `echo $COLLISION | wc -c` -gt 1 ];then
             echo "WAITING (${WHEN} -> ${COLLISION})" | tee -a ${TMP}.log
+            fi
+            if  [ -f $TWURLLOCK ];then
+            LOCKMESSAGE="twurllock: "`cat $TWURLLOCK`
+            echo "WAITING (${WHEN} -> $LOCKMESSAGE)" | tee -a ${TMP}.log
+            fi
             sleep 5
      done
+           echo "$TWUSERNAME" > $TWURLLOCK
            /usr/local/bin/twurl set default $TWUSERNAME
            EVALTHIS="/usr/local/bin/twurl $*"
            eval $EVALTHIS
+           rm $TWURLLOCK
    }
 
    TWURL="setdefaultuserandtweet"
