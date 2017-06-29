@@ -11,9 +11,10 @@
 # --------------------------------------------------------------------------- #
    function setdefaultuserandtweet() {
 
+     CCNT=0
      while [ `ps aux | grep twurl | #
               grep -v grep | wc -l` -gt 0 ] ||
-           [ -f $TWURLLOCK ]
+           [ -f $TWURLLOCK ] && [ $CCNT -lt 1000 ]
       do 
             COLLISION=`ps axo command | #
                        grep twurl | grep -v grep | #
@@ -27,6 +28,8 @@
             echo "WAITING (${WHEN} -> $LOCKMESSAGE)" >> ${TMP}.collision.log
             fi
             sleep 5
+            CCNT=`expr $CCNT + 1`
+            if [ $CCNT -ge 1000 ]; then exit 0; fi
      done
            echo "$TWUSERNAME" > $TWURLLOCK
            /usr/local/bin/twurl set default $TWUSERNAME
