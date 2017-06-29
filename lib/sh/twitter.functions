@@ -20,11 +20,11 @@
                        sed ':a;N;$!ba;s/\n/, /g'`
             WHEN=`date "+%d.%m.%Y %H:%M:%S"`
             if [ `echo $COLLISION | wc -c` -gt 1 ];then
-            echo "WAITING (${WHEN} -> ${COLLISION})"
+            echo "WAITING (${WHEN} -> ${COLLISION})" >> ${TMP}.collision.log
             fi
             if  [ -f $TWURLLOCK ];then
             LOCKMESSAGE="twurllock: "`cat $TWURLLOCK`
-            echo "WAITING (${WHEN} -> $LOCKMESSAGE)"
+            echo "WAITING (${WHEN} -> $LOCKMESSAGE)" >> ${TMP}.collision.log
             fi
             sleep 5
      done
