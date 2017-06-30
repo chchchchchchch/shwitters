@@ -18,12 +18,18 @@
   IMGFOO="XXXXXXXXXXXXXXXXXXXXXXXX"  # 24 CHARS FOR AN IMAGE
   COMPOSE=${TMP}.txt
 # --------------------------------------------------------------------------- #
+# FOR THE LOG
+# --------------------------------------------------------------------------- #
+  if [ `echo $* | grep -- "-t" | wc -l ` -lt 1 ]; then
+  echo -e "--------------------------\nSTART: "`date "+%d.%m.%Y %H:%M:%S"`;fi
+# --------------------------------------------------------------------------- #
 # CHECK PARAMETERS
 # --------------------------------------------------------------------------- #
   MESSAGE=`echo $* | sed 's/-t//g' | sed 's/ //g'`
-  if [ `echo "$MESSAGE" | wc -c` -lt 1 ];
+  if [ `echo "$MESSAGE" | wc -c` -lt 1 ] ||
      [ ! -f  "$MESSAGE" ]
    then echo "No input file provided!"
+        MESSAGE="" # RESET
         for L in `find $SRCDIR -name "*.list"`; do 
           for M in `cat $L | grep -v "^%"`; do
               MESSAGE="$MESSAGE|"`find $SRCDIR -name "$M"`
@@ -34,7 +40,6 @@
               echo "USE $MESSAGE"
         else  echo "NOTHING TO DO."; exit 0; fi
   else  echo "USE $MESSAGE"; fi
-
 # --------------------------------------------------------------------------- #
 # COMPOSE MESSAGE (WITH MEDIA FOR COUNTING)
 # --------------------------------------------------------------------------- #
@@ -54,7 +59,7 @@
            sed 's/./X/g' | # MAKE EVERY CHAR 1 (UNICODE CHAR MISCOUNT?)
            wc -c`; # echo $CHARCNT
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
-        echo "Character count: $CHARCNT"
+        echo "Character count: $CHARCNT (MAX: 141)"
         exit 0;
   fi;  if [ $CHARCNT -gt 141 ]; then echo "TOO MANY CHARS"; exit 0; fi
 
@@ -73,33 +78,31 @@
               grep "^http"      | #
               sed "s/ /\n/g"    | #
               grep "http.\?://" | #
-              sort -u`
+              sort -u`            #
    do
       URL=`echo $URL | sed 's/[.!?]*$//'`
-      C1=1;C2=6
       URLHASH=`echo $URL | md5sum | #
                cut -d " " -f 1 | sed 's/[^0-9]//g'`
+      C1=1;C2=6
       SHOURL=`echo $URLHASH | cut -c $C1-$C2`
       shourlsGetInfo "$SHOURL"                            >> $LOG
-     #echo "$SHOURL $REMOTELONGURL ($STATUS)"
+      URL1=`urldecode $URL`;URL2=`urldecode $REMOTELONGURL`
 
-      URL1=`urldecode $URL`
-      URL2=`urldecode $REMOTELONGURL`
+      while [ "S=$STATUS" != "S=404" ] &&
+            [ "U=$URL1" != "U=$URL2" ]; do
+               C1=`expr $C1 + 1`
+               C2=`expr $C2 + 1`
+               SHOURL=`echo $URLHASH | cut -c $C1-$C2`
+               shourlsGetInfo "$SHOURL"                     >> $LOG
+      done
 
-    while [ "S=$STATUS" != "S=404" ] &&
-          [ "U=$URL1" != "U=$URL2" ]; do
-             C1=`expr $C1 + 1`
-             C2=`expr $C2 + 1`
-             SHOURL=`echo $URLHASH | cut -c $C1-$C2`
-             shourlsGetInfo "$SHOURL"                     >> $LOG
-           # echo "$SHOURL $REMOTELONGURL ($STATUS)"
-    done
-         SHOURLTITLE="$URL"
-         echo "$SHOURL -> $URL"
-       # UPDATE URL
-         shourlsMakeEntry "$URL" "$SHOURL" "$SHOURLTITLE" >> $LOG
-       # INSERT SHORT URL
-         sed -i "s,$URL,lfkn.de\/$SHOURL,g" $COMPOSE
+      SHOURLTITLE="$URL"
+      echo "http://lfkn.de/$SHOURL -> $URL"
+    # - UPDATE URL -------------
+      shourlsMakeEntry "$URL" "$SHOURL" "$SHOURLTITLE" >> $LOG
+    # - INSERT SHORT URL ---------------
+      sed -i "s,$URL,lfkn.de\/$SHOURL,g" $COMPOSE
+
    done
 # --------------------------------------------------------------------------- #
 # PROCESS MEDIA (KEEP ONLY LAST MEDIA ENTRY)
@@ -126,24 +129,27 @@
 # SHOW COLLECTED LOGS
 # --------------------------------------------------------------------------- #
   if [ `ls ${TMP}.*.log 2>/dev/null | wc -l` -gt 0 ];then cat ${TMP}*.log; fi
-
 # --------------------------------------------------------------------------- #
 # DISABLE .tweet WHEN DONE
 # --------------------------------------------------------------------------- #
-  mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$TIMESTAMP
-
-# --------------------------------------------------------------------------- #
-# CLEAN UP
+  if [ `echo $STATUSID | wc -c` -gt 4 ]; then
+        mv $MESSAGE `echo $MESSAGE | sed 's/\.tweet$//'`.$STATUSID
+        BASEURL="https://twitter.com/$TWUSERNAME/status"
+        TWITTERLINK="$BASEURL/$STATUSID"
+        echo "-> $TWITTERLINK"
+  fi
 # --------------------------------------------------------------------------- #
 # CLEAN UP (MAKE SURE $TMPID IS SET FOR WILDCARD DELETE)
+# --------------------------------------------------------------------------- #
   if [ `echo ${TMP} | wc -c` -ge 4 ] &&
      [ `ls   ${TMP}*.* 2>/dev/null | wc -l` -gt 0 ]
-  then
-        rm ${TMP}*.*
+  then  
+        rm ${TMP}*.* 
   fi
-
-
-
+# --------------------------------------------------------------------------- #
+# FOR THE LOG
+# --------------------------------------------------------------------------- #
+  echo -e "READY: "`date "+%d.%m.%Y %H:%M:%S"`"\n--------------------------\n"
 
 
 exit 0;
