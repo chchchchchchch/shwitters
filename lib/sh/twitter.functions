@@ -30,7 +30,7 @@
             sleep 5
             CCNT=`expr $CCNT + 1`
             if [ $CCNT -ge 100 ]; then
-                 echo 'EXIT BY TWURL LOCK!' >> ${TMP}.collision.log
+                 echo '"errors": EXIT BY TWURL LOCK!' | tee -a ${TMP}.collision.log
                  UNLOCK="NOT";exit 1;
             fi
      done
@@ -101,7 +101,7 @@
 
     if [ `echo $TWEET | grep '"errors":' | wc -l` -gt 0 ]
      then
-          echo "There was an error. Deleting ${MEDIA%%.*}"
+          echo "There was an error. Deleting ${MEDIA}"
           echo $TWEET
         # rm ${MEDIA%%.*}.*
           echo "$TWURL \"$UPDATE\" -d \"$OPTIONS\""
