@@ -61,7 +61,10 @@
   if [ `echo $* | grep -- "-t" | wc -l ` -gt 0 ]; then
         echo "Character count: $CHARCNT (MAX: 141)"
         exit 0;
-  fi;  if [ $CHARCNT -gt 141 ]; then echo "TOO MANY CHARS"; exit 0; fi
+  fi;  if [ $CHARCNT -gt 141 ]; then echo "TOO MANY CHARS"
+  if [ `echo $* | grep -- "-t" | wc -l ` -lt 1 ]; then
+  echo -e "READY: "`date "+%d.%m.%Y %H:%M:%S"`"\n--------------------------\n"
+  fi; exit 0; fi
 
 # --------------------------------------------------------------------------- #
 # REMOVE MEDIA (UPLOAD HANDLED SEPARATELY)

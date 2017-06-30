@@ -24,9 +24,11 @@
                      rev`               # REVERT
         cd $PROJECTROOT
         SLEEPTIME=`expr $((RANDOM%7500)) \/ $((RANDOM%30+1))`
-        echo "DELAY:  ${SLEEPTIME}s"
+        echo "--------------------------"
+        echo "TIME: "`date "+%d.%m.%Y %H:%M:%S"`
+        echo "WAIT: ${SLEEPTIME}s"
         sleep $SLEEPTIME
-        echo "TIME:   "`date "+%d.%m.%Y %T"`
+        echo "--------------------------"
         TRIGGERTHIS="./tweet.sh"
         $TRIGGERTHIS
         cd - > /dev/null 2>&1
