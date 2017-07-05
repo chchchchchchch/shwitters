@@ -4,8 +4,8 @@
 # ---------------------------------------------------------- #
   SELF=`basename $0`
   HOUR=`date +%H`
-  if [ `echo $RANDOM | rev | cut -c 1` -ge 7 ] &&
-     [ $HOUR -lt 24 ] && [ $HOUR -gt 5 ]; then
+  if [ `echo $RANDOM | rev | cut -c 1` -ge 8 ] &&
+     [ $HOUR -lt 21 ] && [ $HOUR -gt 7 ]; then
 
   if [ `ps a         | # LIST PROCESSES
         grep $SELF   | # LOOK FOR YOURSELF
